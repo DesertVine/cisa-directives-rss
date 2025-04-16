@@ -7,8 +7,8 @@ import os
 import json
 
 URL = "https://www.cisa.gov/directives"
-FEED_FILE = "rss.xml"
-STATE_FILE = "directives_state.json"
+FEED_FILE = "docs/rss.xml"
+STATE_FILE = "docs/directives_state.json"
 
 def fetch_directives():
     res = requests.get(URL)
