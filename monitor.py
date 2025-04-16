@@ -58,17 +58,18 @@ def main():
     current = fetch_directives()
     previous = load_previous_state()
 
-    # Get list of new directives by comparing IDs
+    # Set of known directive IDs
     previous_ids = {d["id"] for d in previous}
     new_directives = [d for d in current if d["id"] not in previous_ids]
 
-    if not previous:  # First run, include everything
-        print("First run — generating feed for all directives.")
-        generate_rss(current)
+    # If no state exists or it's empty, treat as first run
+    if not previous_ids:
+        print("First run — generating feed for all current directives.")
+        generate_rss(current[:25])  # Still limit to 25 if a ton exist
         save_current_state(current)
     elif new_directives:
         print(f"{len(new_directives)} new directive(s) found. Updating feed.")
-        generate_rss(new_directives)
+        generate_rss(new_directives[:25])
         save_current_state(current)
     else:
         print("No new directives. RSS feed not updated.")
