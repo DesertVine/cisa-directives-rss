@@ -38,14 +38,14 @@ def save_current_state(data):
     with open(STATE_FILE, "w") as f:
         json.dump(data, f)
 
-def generate_rss(directives):
+def generate_rss(new_directives):
     fg = FeedGenerator()
-    fg.title("CISA Directives")
+    fg.title("CISA Directives (New Only)")
     fg.link(href=URL)
-    fg.description("Feed of CISA's Cybersecurity Directives")
+    fg.description("Latest CISA Directive(s) only")
     fg.language("en")
 
-    for d in directives:
+    for d in new_directives:
         fe = fg.add_entry()
         fe.id(d["id"])
         fe.title(d["title"])
@@ -58,12 +58,20 @@ def main():
     current = fetch_directives()
     previous = load_previous_state()
 
-    if not previous or current != previous:
-        print("Change detected or first run, updating RSS feed.")
+    # Get list of new directives by comparing IDs
+    previous_ids = {d["id"] for d in previous}
+    new_directives = [d for d in current if d["id"] not in previous_ids]
+
+    if not previous:  # First run, include everything
+        print("First run — generating feed for all directives.")
         generate_rss(current)
         save_current_state(current)
+    elif new_directives:
+        print(f"{len(new_directives)} new directive(s) found. Updating feed.")
+        generate_rss(new_directives)
+        save_current_state(current)
     else:
-        print("No changes found.")
+        print("No new directives. RSS feed not updated.")
 
 if __name__ == "__main__":
     main()
