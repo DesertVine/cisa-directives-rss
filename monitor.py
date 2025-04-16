@@ -58,8 +58,8 @@ def main():
     current = fetch_directives()
     previous = load_previous_state()
 
-    if current != previous:
-        print("Change detected, updating RSS feed.")
+    if not previous or current != previous:
+        print("Change detected or first run, updating RSS feed.")
         generate_rss(current)
         save_current_state(current)
     else:
