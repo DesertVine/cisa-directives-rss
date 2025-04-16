@@ -45,7 +45,7 @@ def generate_rss(new_directives):
     fg.description("Latest CISA Directive(s) only")
     fg.language("en")
 
-    for d in new_directives:
+    for d in new_directives[:25]:
         fe = fg.add_entry()
         fe.id(d["id"])
         fe.title(d["title"])
