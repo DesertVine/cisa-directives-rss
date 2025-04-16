@@ -30,8 +30,13 @@ def fetch_directives():
 
 def load_previous_state():
     if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            return json.load(f)
+        try:
+            with open(STATE_FILE, "r") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+        except Exception as e:
+            print(f"Warning: Could not load previous state. Reason: {e}")
     return []
 
 def save_current_state(data):
