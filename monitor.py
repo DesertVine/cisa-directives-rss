@@ -11,21 +11,29 @@ FEED_FILE = "docs/rss.xml"
 STATE_FILE = "docs/directives_state.json"
 
 def fetch_directives():
+    print("Fetching directives from CISA...")
     res = requests.get(URL)
     res.raise_for_status()
     soup = BeautifulSoup(res.text, "html.parser")
-    
+
     directives = []
-    for link in soup.select("a[href*='/directive/']"):
-        href = link['href']
-        title = link.get_text(strip=True)
-        full_url = f"https://www.cisa.gov{href}"
-        id = hashlib.md5(full_url.encode()).hexdigest()
+
+    for article in soup.select("article.c-teaser"):
+        a_tag = article.find("a", href=True)
+        title = a_tag.get_text(strip=True)
+        url = f"https://www.cisa.gov{a_tag['href']}"
+        date_tag = article.find("time")
+        pub_date = date_tag["datetime"] if date_tag else datetime.now().isoformat()
+
+        id = hashlib.md5(url.encode()).hexdigest()
         directives.append({
             "id": id,
             "title": title,
-            "url": full_url
+            "url": url,
+            "published": pub_date
         })
+
+    print(f"Found {len(directives)} directive(s).")
     return directives
 
 def load_previous_state():
